@@ -5,19 +5,28 @@ import { useUserInfo } from '@/stores/loginInfoState';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
+// 로그인 form에서 사용자 input값을 바인딩 할 때 사용.
+// loginInfo.value에 로그인 정보 들어갈거임.
 const loginInfo = ref({});
 
 const { setUserData } = useUserInfo();
+
+// 로그인 버튼 클릭 시 실행될 함수 정의
 const router = useRouter();
 
 const handlerLogin = () => {
+  // loginInfo.value 객체를 URLSearchParams으로 변환
   const param = new URLSearchParams(loginInfo.value);
 
-  axios.post('/api/loginProc.do', param).then((res) => {
+  axios.post('/api/loginProc.do', param).then((res) => { // 서버api를 param으로 받아왔으면
+    // 응답된 res에서 data만 추출해서 이것을 data라고 선언
     const data = res.data;
+    // data.result가 SUCCESS라면
     if (data.result === 'SUCCESS') {
+      // 로그인된 userInfo를 sessionStorage.setItem에 json형태로 저장
       sessionStorage.setItem('userInfo', JSON.stringify(data));
       setUserData(data);
+      // 그 뒤에 /vue로 이동
       router.push('/vue');
     } else {
       alert('아이디 혹은 비밀번호가 일치하지 않아요');

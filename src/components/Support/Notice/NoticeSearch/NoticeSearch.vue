@@ -1,13 +1,41 @@
-<script setup></script>
+<script setup>
+import router from '@/router';
+import { useModalState } from '@/stores/modalState';
+import { onMounted, ref } from 'vue';
+
+const searchTitle = ref('');
+const searchStDate = ref('');
+const searchEdDate = ref('');
+const modalState = useModalState();
+
+//검색 버튼 클릭 할 시에 검색 data가 queryParm에 들어가게끔 하는 함수.
+const handelerSearch = () => {
+  const query = [];
+  // searchTitle의 값이 있는 경우 쿼리라는 array에 담아둘거다.
+  !searchTitle.value || query.push(`title=${searchTitle.value}`);
+  !searchStDate.value || query.push(`startDate=${searchStDate.value}`);
+  !searchEdDate.value || query.push(`endDate=${searchEdDate.value}`);
+
+  const queryString = query.length > 0 ? `?${query.join('&')}` : '';
+  // vue router에서 제공해주는 메소드... // 직접 URL넣어주기 위해 사용.
+  router.push(queryString);
+};
+
+onMounted(() => {
+  // search한 값이 있아면 repalce해라 (window.location.pathname)으로. 이거 console찍어보면 /vue/support/notice이렇게 나옴.
+  window.location.search && router.replace(window.location.pathname);
+});
+</script>
 
 <template>
   <div class="notice-container">
     <div class="input-box">
-      제목: <input />
-      <input type="date" />
-      <input type="date" />
-      <button>검색</button>
-      <button>등록</button>
+      <!-- lazy: title에 입력을 할 때마다 랜더링될텐데 포커스를 잃었을 때만 ref에 값이 저장되어라. -->
+      제목: <input v-model.lazy="searchTitle" />
+      <input v-model="searchStDate" type="date" />
+      <input v-model="searchEdDate" type="date" />
+      <button @click="handelerSearch">검색</button>
+      <button @click="modalState.$patch({ isOpen: true })">등록</button>
     </div>
   </div>
 </template>
